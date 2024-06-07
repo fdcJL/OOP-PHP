@@ -8,4 +8,4 @@ $router->get('/', function() {
     echo "Welcome to the Home Page!";
 });
 
-$router->get('/register', [RegisteredController::class, 'store']);
+$router->post('/register', [RegisteredController::class, 'store']);
