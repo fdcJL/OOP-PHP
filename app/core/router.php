@@ -1,8 +1,19 @@
 <?php
+
 namespace App\Core;
 
 class Router {
+    private static $instance = null;
     private $routes = [];
+
+    private function __construct() {}
+
+    public static function route() {
+        if (self::$instance === null) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
 
     public function get($uri, $action) {
         $this->addRoute('GET', $uri, $action);
@@ -28,7 +39,6 @@ class Router {
                 return;
             }
         }
-
         echo "404 Not Found";
     }
 
@@ -37,17 +47,24 @@ class Router {
     }
 
     private function callAction($action, $params = []) {
+        $request = new Request();
+
         if (is_callable($action)) {
-            call_user_func_array($action, $params);
+            call_user_func_array($action, array_merge([$request], $params));
         } elseif (is_array($action)) {
             list($controller, $method) = $action;
-            if (class_exists($controller) && method_exists($controller, $method)) {
-                call_user_func_array([new $controller, $method], $params);
+            if (class_exists($controller)) {
+                $controllerInstance = new $controller;
+                if (method_exists($controllerInstance, $method)) {
+                    call_user_func_array([$controllerInstance, $method], array_merge([$request], $params));
+                } else {
+                    echo "404 Not Found - Method $method does not exist in controller $controller";
+                }
             } else {
-                echo "404 Not Found";
+                echo "404 Not Found - Controller $controller does not exist";
             }
         } else {
-            echo "404 Not Found";
+            echo "404 Not Found - Action is not callable";
         }
     }
 }

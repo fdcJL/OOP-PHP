@@ -1,11 +1,14 @@
 <?php
-// public/index.php
+require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../src/routes/web.php';
+require_once __DIR__ . '/../app/config/bootstrap.php';
 
-require_once '../autoload.php';
-
-use App\Core\Request;
 use App\Core\Router;
+use App\Core\Request;
 
-require_once '../src/routes/web.php';
+$router = Router::route();
 
-$router->dispatch(Request::uri(), Request::method());
+$requestUri = Request::uri();
+$requestMethod = Request::method();
+
+$router->dispatch($requestUri, $requestMethod);
