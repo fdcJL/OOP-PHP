@@ -1,18 +1,15 @@
 <?php
 use Dotenv\Dotenv;
 use App\Database\DB;
-use App\Console\Commands\MigrationCommand;
 
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../..');
 $dotenv->load();
 
-$dsn = "".$_ENV['DB_CONNECTION'].":host=".$_ENV['DB_HOST'].";dbname=".$_ENV['DB_DATABASE']."";
-$username = $_ENV['DB_USERNAME'];
-$password = $_ENV['DB_PASSWORD'];
-$options = [
-    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-];
+$dbconfig = include 'database.php';
+$connection = $dbconfig['connections']['mysql'];
 
-DB::init($dsn, $username, $password, $options);
+$dsn = "{$connection['driver']}:host={$connection['host']};
+        dbname={$connection['database']};
+        unix_socket=/Applications/XAMPP/xamppfiles/var/mysql/mysql.sock";
 
-MigrationCommand::setDatabase($dsn, $username, $password, $options);
+DB::init($dsn, $connection['username'], $connection['password'], $connection['options']);

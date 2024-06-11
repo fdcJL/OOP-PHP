@@ -11,8 +11,6 @@ class CommandRunner
 {
     public function run($argv)
     {
-        require_once __DIR__ . '/../config/bootstrap.php';
-
         if (count($argv) < 2) {
             echo "Usage: php console <command>\n";
             exit(1);
