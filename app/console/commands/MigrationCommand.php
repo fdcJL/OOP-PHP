@@ -17,10 +17,6 @@ class MigrationCommand {
         self::$table = new Table(self::$pdo);
     }
 
-    public static function run($sql) {
-        self::$pdo->exec($sql);
-    }
-
     public static function migrate() {
         $migrationFiles = glob(__DIR__ . '/../../../src/migrations/*.php');
     

@@ -12,7 +12,7 @@ class DB {
     public static function init($dsn, $username, $password, $options = []) {
         try {
             self::$connection = new PDO($dsn, $username, $password, $options);
-            // MigrationCommand::setDatabase($dsn, $username, $password, $options);
+            MigrationCommand::setDatabase($dsn, $username, $password, $options);
         } catch (PDOException $e) {
             die("Connection failed: " . $e->getMessage());
         }

@@ -9,7 +9,7 @@ class MakeMigrationCommand {
             exit(1);
         }
 
-        $tableName = ucfirst($argv[0]); // Use $argv[1] for the table name
+        $tableName = strtolower($argv[0]); // Use $argv[1] for the table name
         $timestamp = date('Y_m_d_His');
         $migrationsDir = realpath(__DIR__ . "/../../../src/migrations");
 
@@ -27,8 +27,7 @@ class MakeMigrationCommand {
 
         $content = "<?php\n\n";
         $content .= "namespace Src\Migrations;\n\n";
-        $content .= "class Create{$tableName}Table\n";
-        $content .= "{\n";
+        $content .= "return new class {\n";
         $content .= "    public function up(\$table) {\n";
         $content .= "        \$table->create('$tableName', function(\$column) {\n";
         $content .= "            \$column->id();\n";
@@ -37,9 +36,9 @@ class MakeMigrationCommand {
         $content .= "        });\n";
         $content .= "    }\n\n";
         $content .= "    public function down(\$table) {\n";
-        $content .= "        \$table->dropIfExists('{$tableName}');\n";
+        $content .= "        \$table->dropIfExists('$tableName');\n";
         $content .= "    }\n";
-        $content .= "}\n";
+        $content .= "};\n";
 
         file_put_contents($filename, $content);
 
