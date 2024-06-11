@@ -20,6 +20,7 @@ class MigrationCommand {
     public static function migrate() {
         $migrationFiles = glob(__DIR__ . '/../../../src/migrations/*.php');
     
+        $fileList = [];
         foreach ($migrationFiles as $migrationFile) {
             require_once $migrationFile;
             $migration = require $migrationFile;
@@ -40,10 +41,20 @@ class MigrationCommand {
 
                 $migration->down(self::$table);
                 $migration->up(self::$table);
+                
+                $filename = basename($migrationFile);
+            
+                $fileList[] = array(
+                    'filename' => $filename,
+                );
             }
         }
+        
+        foreach ($fileList as $file) {
+            echo $file['filename'] . PHP_EOL;
+        }
     
-        echo "Migrations completed successfully.\n";
+        echo "\nMigrations completed successfully.\n\n";
     }
 
     public static function rollback() {
