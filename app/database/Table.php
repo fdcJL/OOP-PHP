@@ -12,7 +12,7 @@ class Table {
         $this->pdo = $pdo;
         $this->engine = $engine;
     }
-    
+
     public function getConnection() {
         return $this->pdo;
     }
@@ -28,7 +28,6 @@ class Table {
     }
 
     public function dropIfExists($tableName) {
-        $sql = "DROP TABLE IF EXISTS $tableName";
-        $this->pdo->exec($sql);
+
     }
 }
