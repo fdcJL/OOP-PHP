@@ -6,9 +6,15 @@ use PDO;
 
 class Table {
     private $pdo;
+    private $engine;
 
-    public function __construct(PDO $pdo) {
+    public function __construct(PDO $pdo, $engine) {
         $this->pdo = $pdo;
+        $this->engine = $engine;
+    }
+    
+    public function getConnection() {
+        return $this->pdo;
     }
 
     public function create($tableName, $callback) {
@@ -17,7 +23,7 @@ class Table {
         $callback($columnBuilder);
 
         $columnsSql = implode(", ", $columns);
-        $sql = "CREATE TABLE $tableName ($columnsSql)";
+        $sql = "CREATE TABLE $tableName ($columnsSql) ENGINE='{$this->engine}'";
         $this->pdo->exec($sql);
     }
 

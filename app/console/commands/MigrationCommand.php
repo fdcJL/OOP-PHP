@@ -3,18 +3,14 @@
 namespace App\Console\Commands;
 
 use App\Database\Table;
-use PDO;
 
 require_once __DIR__ . '/../../config/bootstrap.php';
 
 class MigrationCommand {
-
-    private static $pdo;
     private static $table;
 
-    public static function setDatabase($dsn, $username, $password, $options = []) {
-        self::$pdo = new PDO($dsn, $username, $password, $options);
-        self::$table = new Table(self::$pdo);
+    public static function setDatabase($conn, $engine) {
+        self::$table = new Table($conn, $engine);
     }
 
     public static function migrate() {
@@ -39,22 +35,31 @@ class MigrationCommand {
                     continue;
                 }
 
-                $migration->down(self::$table);
-                $migration->up(self::$table);
-                
                 $filename = basename($migrationFile);
-            
+                preg_match('/create_(.*?)_table\.php/', $filename, $matches);
+                $tableName = $matches[1];
+
+                if (self::tableExists($tableName)) {
+                    continue;
+                }
+
                 $fileList[] = array(
                     'filename' => $filename,
                 );
+
+                $migration->up(self::$table);
+
             }
         }
         
-        foreach ($fileList as $file) {
-            echo $file['filename'] . PHP_EOL;
+        if(!empty($fileList)){
+            foreach ($fileList as $file) {
+                echo $file['filename'] . PHP_EOL;
+            }
+            echo "\nMigrations completed successfully.\n";
+        }else{
+            echo "\nNothing to Migrate.\n";
         }
-    
-        echo "\nMigrations completed successfully.\n\n";
     }
 
     public static function rollback() {
@@ -77,5 +82,13 @@ class MigrationCommand {
         }
 
         echo "Rollback completed successfully.\n";
+    }
+
+    private static function tableExists($tableName) {
+        $query = "SHOW TABLES LIKE '$tableName'";
+        $stmt = self::$table->getConnection()->query($query);
+        $result = $stmt->fetch();
+    
+        return $result !== false;
     }
 }

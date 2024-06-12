@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-class MakeMigrationCommand {
+class MakeTableCommand {
     public static function run($argv) {
         if (count($argv) < 1) { // Check if enough arguments are provided
-            echo "Usage: php console make:migration <TableName>\n";
+            echo "Usage: php console make:table <TableName>\n";
             exit(1);
         }
 
@@ -14,14 +14,14 @@ class MakeMigrationCommand {
         $migrationsDir = realpath(__DIR__ . "/../../../src/migrations");
 
         if (!$migrationsDir) { // Check if the migrations directory exists
-            echo "Migrations directory not found.\n";
+            echo "Table directory not found.\n";
             exit(1);
         }
 
         $filename = "{$migrationsDir}/{$timestamp}_create_{$tableName}_table.php";
 
         if (file_exists($filename)) {
-            echo "Migration already exists: {$filename}\n";
+            echo "Table already exists: {$filename}\n";
             exit(1);
         }
 
@@ -42,6 +42,6 @@ class MakeMigrationCommand {
 
         file_put_contents($filename, $content);
 
-        echo "Migration created successfully: {$filename}\n";
+        echo "Table created successfully: {$filename}\n";
     }
 }
