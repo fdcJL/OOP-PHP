@@ -28,6 +28,15 @@ class Table {
     }
 
     public function dropIfExists($tableName) {
+        $stmt = $this->pdo->query("SHOW TABLES LIKE '{$tableName}'");
+        $result = $stmt->fetch();
 
+        if ($result) {
+            // Drop the table if it exists
+            $this->pdo->exec("DROP TABLE {$tableName}");
+            echo "Dropped table if exists: $tableName\n";
+        } else {
+            echo "Table $tableName does not exist.\n";
+        }
     }
 }

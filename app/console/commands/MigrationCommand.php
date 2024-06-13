@@ -39,29 +39,17 @@ class MigrationCommand {
                 echo "Database is off";
                 return;
             }else{
-                if (!is_object($migration)) {
-                    echo "Error: Invalid migration file: $migrationFile\n";
-                    continue;
+                if (is_object($migration) && method_exists($migration, 'down')) {
+                    $filename = basename($migrationFile);
+                    // preg_match('/create_(.*?)_table\.php/', $filename, $matches);
+                    // $tableName = $matches[1];
+                    if (self::tableExists($filename)) {
+                        continue;
+                    }
+                    $migration->up(self::$table);
+                    self::recordMigration($filename, $batch);
+                    $fileList[] = $filename;
                 }
-        
-                if (!method_exists($migration, 'up')) {
-                    echo "Error: Missing 'up' method in migration file: $migrationFile\n";
-                    continue;
-                }
-
-                $filename = basename($migrationFile);
-                // preg_match('/create_(.*?)_table\.php/', $filename, $matches);
-                // $tableName = $matches[1];
-
-                if (self::tableExists($filename)) {
-                    continue;
-                }
-
-                $migration->up(self::$table);
-
-                self::recordMigration($filename, $batch);
-                $fileList[] = $filename;
-
             }
         }
         
@@ -81,32 +69,23 @@ class MigrationCommand {
         foreach ($migrationFiles as $migrationFile) {
             require_once $migrationFile;
             $migration = require $migrationFile;
-    
-            if (!is_object($migration)) {
-                echo "Error: Invalid migration file: $migrationFile\n";
-                continue;
-            }
-    
-            if (!method_exists($migration, 'down')) {
-                echo "Error: Missing 'down' method in migration file: $migrationFile\n";
-                continue;
-            }
-    
-            // Extract the table name from the filename
-            $filename = basename($migrationFile);
-            preg_match('/create_(.*?)_table\.php/', $filename, $matches);
-            $tableName = $matches[1];
-    
-            if (empty($tableName)) {
-                echo "Error: Unable to extract table name from filename: $filename\n";
-                continue;
-            }
-    
-            if (self::tableExists($filename)) {
-                $migration->down(self::$table);
-                echo "Rolled back migration for table: $tableName\n";
-            } else {
-                echo "Table '{$tableName}' does not exist. Skipping rollback for {$migrationFile}.\n";
+      
+            if (is_object($migration) && method_exists($migration, 'down')) {
+                $filename = basename($migrationFile);
+                preg_match('/create_(.*?)_table\.php/', $filename, $matches);
+                $tableName = $matches[1];
+        
+                if (empty($tableName)) {
+                    echo "Error: Unable to extract table name from filename: $filename\n";
+                    continue;
+                }
+        
+                if (self::tableExists($filename)) {
+                    $migration->down(self::$table);
+                    echo "Rolled back migration for table: $tableName\n";
+                } else {
+                    echo "Table '{$tableName}' does not exist. Skipping rollback for {$migrationFile}.\n";
+                }
             }
         }
     
