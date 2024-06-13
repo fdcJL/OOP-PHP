@@ -65,6 +65,24 @@ class MigrationCommand {
 
     public static function rollback() {
         $migrationFiles = array_reverse(glob(__DIR__ . '/../../../src/migrations/*.php'));
+        
+        $lastBatch = self::getCurrentBatch();
+        
+        if ($lastBatch === 0) {
+            echo "No migrations to rollback.\n";
+            return;
+        }
+        
+        // Get migration files for the last batch
+        $query = "SELECT migration FROM migrations WHERE batch = :batch ORDER BY id DESC";
+        $stmt = self::$table->getConnection()->prepare($query);
+        $stmt->execute(['batch' => $lastBatch]);
+        $migrations = $stmt->fetchAll();
+
+        if (!$migrations) {
+            echo "No migrations found for the last batch.\n";
+            return;
+        }
     
         foreach ($migrationFiles as $migrationFile) {
             require_once $migrationFile;
@@ -74,6 +92,10 @@ class MigrationCommand {
                 $filename = basename($migrationFile);
                 preg_match('/create_(.*?)_table\.php/', $filename, $matches);
                 $tableName = $matches[1];
+                
+                $query = "DELETE FROM migrations WHERE batch = :batch";
+                $stmt = self::$table->getConnection()->prepare($query);
+                $stmt->execute(['batch' => $lastBatch]);
         
                 if (empty($tableName)) {
                     echo "Error: Unable to extract table name from filename: $filename\n";
@@ -88,8 +110,9 @@ class MigrationCommand {
                 }
             }
         }
-    
-        echo "Rollback completed successfully.\n";
+
+
+        echo "Rollback of batch $lastBatch completed successfully.\n";
     }
 
     private static function getCurrentBatch() {
