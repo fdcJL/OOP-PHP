@@ -32,7 +32,6 @@ class MigrationCommand {
     
         $fileList = [];
         foreach ($migrationFiles as $migrationFile) {
-            require_once $migrationFile;
             $migration = require $migrationFile;
             
             if(!self::$table){
@@ -41,8 +40,6 @@ class MigrationCommand {
             }else{
                 if (is_object($migration) && method_exists($migration, 'down')) {
                     $filename = basename($migrationFile);
-                    // preg_match('/create_(.*?)_table\.php/', $filename, $matches);
-                    // $tableName = $matches[1];
                     if (self::tableExists($filename)) {
                         continue;
                     }
@@ -68,51 +65,36 @@ class MigrationCommand {
         
         $lastBatch = self::getCurrentBatch();
         
-        if ($lastBatch === 0) {
+        $checkLastBatch = self::checkLastBatch($lastBatch);
+        
+        if (empty($lastBatch)) {
             echo "No migrations to rollback.\n";
             return;
-        }
-        
-        // Get migration files for the last batch
-        $query = "SELECT migration FROM migrations WHERE batch = :batch ORDER BY id DESC";
-        $stmt = self::$table->getConnection()->prepare($query);
-        $stmt->execute(['batch' => $lastBatch]);
-        $migrations = $stmt->fetchAll();
-
-        if (!$migrations) {
-            echo "No migrations found for the last batch.\n";
-            return;
-        }
-    
-        foreach ($migrationFiles as $migrationFile) {
-            require_once $migrationFile;
-            $migration = require $migrationFile;
-      
-            if (is_object($migration) && method_exists($migration, 'down')) {
+        }else{
+            foreach ($migrationFiles as $migrationFile) {
+                $migration = require $migrationFile;
+                
                 $filename = basename($migrationFile);
                 preg_match('/create_(.*?)_table\.php/', $filename, $matches);
                 $tableName = $matches[1];
                 
-                $query = "DELETE FROM migrations WHERE batch = :batch";
-                $stmt = self::$table->getConnection()->prepare($query);
-                $stmt->execute(['batch' => $lastBatch]);
-        
-                if (empty($tableName)) {
-                    echo "Error: Unable to extract table name from filename: $filename\n";
-                    continue;
-                }
-        
-                if (self::tableExists($filename)) {
-                    $migration->down(self::$table);
-                    echo "Rolled back migration for table: $tableName\n";
-                } else {
-                    echo "Table '{$tableName}' does not exist. Skipping rollback for {$migrationFile}.\n";
+                if (is_object($migration) && method_exists($migration, 'down')) {
+                    foreach($checkLastBatch as $lastBatch){
+                        if($lastBatch['migration'] == $filename){
+                            
+                            $migration->down(self::$table);
+                            
+                            $query = "DELETE FROM migrations WHERE migration = :migration";
+                            $stmt = self::$table->getConnection()->prepare($query);
+                            $stmt->execute(['migration' => $filename]);
+                            echo "Rollback migration for table: $tableName\n";
+                        };
+                    }
                 }
             }
         }
 
-
-        echo "Rollback of batch $lastBatch completed successfully.\n";
+        echo "\nRollback completed successfully.\n";
     }
 
     private static function getCurrentBatch() {
@@ -126,6 +108,14 @@ class MigrationCommand {
         $query = "INSERT INTO migrations (migration, batch, created_at) VALUES (:migration, :batch, NOW())";
         $stmt = self::$table->getConnection()->prepare($query);
         $stmt->execute(['migration' => $filename, 'batch' => $batch]);
+    }
+    
+    private static function checkLastBatch($lastBatch){
+        $query = "SELECT migration FROM migrations WHERE batch = :batch";
+        $stmt = self::$table->getConnection()->prepare($query);
+        $stmt->execute(['batch' => $lastBatch]);
+        $result = $stmt->fetchAll();
+        return $result;
     }
     
     private static function tableExists($filename) {

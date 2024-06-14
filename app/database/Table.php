@@ -32,9 +32,7 @@ class Table {
         $result = $stmt->fetch();
 
         if ($result) {
-            // Drop the table if it exists
             $this->pdo->exec("DROP TABLE {$tableName}");
-            echo "Dropped table if exists: $tableName\n";
         } else {
             echo "Table $tableName does not exist.\n";
         }
