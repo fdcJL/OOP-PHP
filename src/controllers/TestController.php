@@ -6,9 +6,8 @@ use App\Database\DB;
 use Src\Controllers\Controller;
 
 class TestController extends Controller{
-    public function index(){
-        $test = DB::table('test')->get();
-        
-        return response()->json($test)->send();
+    public function index(){        
+        $Qry = DB::table('test')->select('id,fname')->get();
+        return response()->json($Qry)->send();
     }
 }

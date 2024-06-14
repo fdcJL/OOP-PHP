@@ -8,6 +8,13 @@ use App\Console\Commands\MigrationCommand;
 
 class DB {
     private static $con = null;
+    private $table;
+    private $selected = '*';
+    private $fields = '';
+
+    private function __construct($table) {
+        $this->table = $table;
+    }
 
     public static function init($conn, $dsn) {
         try {
@@ -26,16 +33,24 @@ class DB {
     public static function table($table) {
         return new static($table);
     }
+    
+    public function select($columns = '*') {
+        $this->selected = $columns;
+        return $this;
+    }
 
-    private $table;
-
-    private function __construct($table) {
-        $this->table = $table;
+    public function where($condition) {
+        $this->fields = $condition;
+        return $this;
     }
 
     public function get() {
-        $stmt = self::$con->query("SELECT * FROM {$this->table}");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $sql = "SELECT {$this->selected} FROM {$this->table}";
+        if(!empty($this->fields)){
+            $sql .= " WHERE {$this->fields}";
+        }
+        $stmt = self::$con->query($sql);
+        return $stmt->fetchAll();
     }
 
     public function insert(array $data) {
