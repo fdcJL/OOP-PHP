@@ -2,6 +2,8 @@
 
 namespace Src\Controller;
 
-class TestController {
+use Src\Controllers\Controller;
+
+class SampleController extends Controller{
     // Add your controller methods here
 }

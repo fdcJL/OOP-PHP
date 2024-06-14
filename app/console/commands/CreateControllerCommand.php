@@ -24,12 +24,13 @@ class CreateControllerCommand {
         }
 
         $content = "<?php\n\nnamespace Src\Controller;\n\n";
-        $content .= "class {$controllerName} {\n";
+        $content .= "use Src\Controllers\Controller;\n\n";
+        $content .= "class {$controllerName} extends Controller{\n";
         $content .= "    // Add your controller methods here\n";
         $content .= "}\n";
 
         file_put_contents($filename, $content);
 
-        echo "Controller created successfully: {$controllerName}\n";
+        echo "Controller created successfully: {$controllerName}Controller\n";
     }
 }
