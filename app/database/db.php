@@ -11,8 +11,9 @@ class DB {
     private $table;
     private $selected = '*';
     private $fields = '';
+    private $joins = '';
 
-    private function __construct($table) {
+    private function __construct($table = null) {
         $this->table = $table;
     }
 
@@ -43,14 +44,36 @@ class DB {
         $this->fields = $condition;
         return $this;
     }
+    
+    public function leftJoin($table, $condition) {
+        $this->joins .= " LEFT JOIN {$table} ON {$condition}";
+        return $this;
+    }
+
+    public function rightJoin($table, $condition) {
+        $this->joins .= " RIGHT JOIN {$table} ON {$condition}";
+        return $this;
+    }
+
+    public function innerJoin($table, $condition) {
+        $this->joins .= " INNER JOIN {$table} ON {$condition}";
+        return $this;
+    }
 
     public function get() {
         $sql = "SELECT {$this->selected} FROM {$this->table}";
+        if (!empty($this->joins)) {
+            $sql .= $this->joins;
+        }
         if(!empty($this->fields)){
             $sql .= " WHERE {$this->fields}";
         }
-        $stmt = self::$con->query($sql);
-        return $stmt->fetchAll();
+        try {
+            $stmt = self::$con->query($sql);
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            die('Query failed: ' . $e->getMessage());
+        }
     }
 
     public function insert(array $data) {

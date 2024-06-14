@@ -6,7 +6,8 @@ return new class {
     public function up($table) {
         $table->create('sample', function($column) {
             $column->id();
-            // Add your table columns here
+            $column->string('idacct');
+            $column->string('fname');
             $column->timestamps();
         });
     }
