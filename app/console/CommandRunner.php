@@ -35,10 +35,18 @@ class CommandRunner
                 }
                 break;
             case 'migrate':
-                MigrationCommand::migrate();
-                break;
-            case 'rollback':
-                MigrationCommand::rollback();
+                if (isset($commandParts[1])) {
+                    switch ($commandParts[1]) {
+                        case 'rollback':
+                            MigrationCommand::rollback();
+                            break;
+                        default:
+                            echo "Unknown migration command: {$argv[1]}\n";
+                            break;
+                    }
+                } else {
+                    MigrationCommand::migrate();
+                }
                 break;
             default:
                 echo "Command not found: {$argv[1]}\n";

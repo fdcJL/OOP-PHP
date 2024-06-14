@@ -93,7 +93,6 @@ class MigrationCommand {
                 }
             }
         }
-
         echo "\nRollback completed successfully.\n";
     }
 
