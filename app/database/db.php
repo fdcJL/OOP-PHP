@@ -12,6 +12,8 @@ class DB {
     private $selected = '*';
     private $fields = '';
     private $joins = '';
+    private $groupBy = '';
+    private $orderBy = '';
 
     private function __construct($table = null) {
         $this->table = $table;
@@ -59,6 +61,24 @@ class DB {
         $this->joins .= " INNER JOIN {$table} ON {$condition}";
         return $this;
     }
+    
+    public function groupBy($columns) {
+        if (is_array($columns)) {
+            $this->groupBy = implode(', ', $columns);
+        } else {
+            $this->groupBy = $columns;
+        }
+        return $this;
+    }
+
+    public function orderBy($columns) {
+        if (is_array($columns)) {
+            $this->orderBy = implode(', ', $columns);
+        } else {
+            $this->orderBy = $columns;
+        }
+        return $this;
+    }
 
     public function get() {
         $sql = "SELECT {$this->selected} FROM {$this->table}";
@@ -67,6 +87,12 @@ class DB {
         }
         if(!empty($this->fields)){
             $sql .= " WHERE {$this->fields}";
+        }
+        if (!empty($this->groupBy)) {
+            $sql .= " GROUP BY {$this->groupBy}";
+        }
+        if (!empty($this->orderBy)) {
+            $sql .= " ORDER BY {$this->orderBy}";
         }
         try {
             $stmt = self::$con->query($sql);
