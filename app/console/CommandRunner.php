@@ -40,6 +40,21 @@ class CommandRunner
                         case 'rollback':
                             MigrationCommand::rollback();
                             break;
+                        case 'truncate':
+                            $table = null;
+                            foreach ($argv as $arg) {
+                                if (strpos($arg, '--table=') === 0) {
+                                    $table = substr($arg, 8);
+                                    break;
+                                }
+                            }
+                            if ($table) {
+                                MigrationCommand::truncate($table);
+                            } else {
+                                echo "Table name is required for truncate command".PHP_EOL;
+                                echo "Usage: php console migrate:truncate --table=<tablename>";
+                            }
+                            break;
                         default:
                             echo "Unknown migration command: {$argv[1]}\n";
                             break;

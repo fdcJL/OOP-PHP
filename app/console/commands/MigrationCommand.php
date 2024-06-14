@@ -95,6 +95,20 @@ class MigrationCommand {
         }
         echo "\nRollback completed successfully.\n";
     }
+    
+    public static function truncate($tablename) {
+        $query = "SHOW TABLES LIKE '{$tablename}'";
+        $stmt = self::$table->getConnection()->query($query);
+        $result = $stmt->fetch();
+        
+        if ($result) {
+            $truncateTable = "TRUNCATE TABLE `{$tablename}`";
+            self::$table->getConnection()->exec($truncateTable);
+            echo "Truncate table $tablename completed successfully.";
+        } else {
+            echo "Table $tablename does not exist.\n";
+        }
+    }
 
     private static function getCurrentBatch() {
         $query = "SELECT MAX(batch) as batch FROM migrations";
