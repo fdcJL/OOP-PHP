@@ -8,20 +8,22 @@ require_once __DIR__ . '/../../config/bootstrap.php';
 
 class MigrationCommand {
     private static $table;
+    private static $con;
 
-    public static function setDatabase($conn, $engine) {
-        self::$table = new Table($conn, $engine);
-        self::createMigrationsTable();
+    public static function setDatabase($conn, $con) {
+        self::$con = $con;
+        self::$table = new Table($conn, $con['engine']);
+        self::createMigrationsTable(self::$con);
     }
 
-    private static function createMigrationsTable() {
+    private static function createMigrationsTable($con) {
         $query = "
             CREATE TABLE IF NOT EXISTS migrations (
                 id INT AUTO_INCREMENT PRIMARY KEY,
                 migration VARCHAR(255) NOT NULL,
                 batch INT NOT NULL,
                 created_at TIMESTAMP
-            );
+            ) ENGINE='{$con['engine']}';
         ";
         self::$table->getConnection()->exec($query);
     }
@@ -94,6 +96,33 @@ class MigrationCommand {
             }
         }
         echo "\nRollback completed successfully.\n";
+    }
+
+    public static function fresh() {
+        $query = "TRUNCATE TABLE migrations";
+        self::$table->getConnection()->exec($query);
+
+        $batch = self::getCurrentBatch() + 1;
+
+        $migrationFiles = array_reverse(glob(__DIR__ . '/../../../src/migrations/*.php'));
+
+        echo "Dropping All Tables\n\n";
+
+        foreach ($migrationFiles as $migrationFile) {
+            $migration = require $migrationFile;
+
+            $filename = basename($migrationFile);
+            preg_match('/create_(.*?)_table\.php/', $filename, $matches);
+            $tableName = $matches[1];
+
+            if (is_object($migration) && method_exists($migration, 'down')) {
+                $migration->down(self::$table);
+                $migration->up(self::$table);
+                self::recordMigration($filename, $batch);
+                echo "run migration for table: $tableName\n";
+            }
+        }
+        echo "\nMigrations completed successfully.";
     }
     
     public static function truncate($tablename) {

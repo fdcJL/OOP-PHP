@@ -23,7 +23,7 @@ class DB {
         try {
             self::$con = new PDO($dsn, $conn['username'], $conn['password'], $conn['options']);
             self::$con->exec("SET NAMES {$conn['charset']} COLLATE {$conn['collation']}");
-            MigrationCommand::setDatabase(self::$con, $conn['engine']);
+            MigrationCommand::setDatabase(self::$con, $conn);
         } catch (PDOException $e) {
             return $e->getMessage();
         }

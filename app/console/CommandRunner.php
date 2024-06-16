@@ -40,6 +40,9 @@ class CommandRunner
                         case 'rollback':
                             MigrationCommand::rollback();
                             break;
+                        case 'fresh':
+                            MigrationCommand::fresh();
+                            break;
                         case 'truncate':
                             $table = null;
                             foreach ($argv as $arg) {

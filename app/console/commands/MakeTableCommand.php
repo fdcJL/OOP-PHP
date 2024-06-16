@@ -42,6 +42,6 @@ class MakeTableCommand {
 
         file_put_contents($filename, $content);
 
-        echo "Table created successfully: {$filename}\n";
+        echo "Table created successfully: {$timestamp}_create_{$tableName}_table.php\n";
     }
 }

@@ -23,6 +23,7 @@ class Table {
         $callback($columnBuilder);
 
         $columnsSql = implode(", ", $columns);
+
         $sql = "CREATE TABLE $tableName ($columnsSql) ENGINE='{$this->engine}'";
         $this->pdo->exec($sql);
     }
