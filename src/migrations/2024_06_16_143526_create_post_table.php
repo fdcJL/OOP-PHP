@@ -9,7 +9,6 @@ return new class {
             $column->int('user_id');
             $column->string('content');
             $column->timestamps();
-            $column->foreignId('user_id', 'users')->onDelete('cascade')->onUpdate('cascade');
         });
     }
 

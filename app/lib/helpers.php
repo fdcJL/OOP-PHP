@@ -2,27 +2,19 @@
 
 class Response {
     protected $data;
-    protected $statusCode;
 
     public function __construct() {
         $this->data = null;
-        $this->statusCode = 200;
     }
-    public function json($data = null, $statusCode = null) {
-        if ($data !== null) {
+    public function json($data = null) {
+        if (!is_null($data)) {
             $this->data = $data;
-        }
-        if ($statusCode !== null) {
-            $this->statusCode = $statusCode;
+            http_response_code(200);
+            header('Content-Type: application/json');
+            echo json_encode($this->data);
+            exit;
         }
         return $this;
-    }
-
-    public function send() {
-        http_response_code($this->statusCode);
-        header('Content-Type: application/json');
-        echo json_encode($this->data);
-        exit;
     }
 }
 

@@ -9,10 +9,9 @@ return new class {
             $column->string('fname');
             $column->string('lname');
             $column->string('username', 100);
-            $column->string('email')->nullable();
+            $column->string('email');
             $column->string('password');
             $column->date('bdate');
-            $column->decimal('amount');
             $column->timestamps();
         });
     }

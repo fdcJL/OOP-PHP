@@ -72,6 +72,11 @@ class Column {
         return $this;
     }
 
+    public function index($column, $name = null) {
+        $this->columns[] = "INDEX $name ($column)";
+        return $this;
+    }
+
     public function unique() {
         $lastColumn = array_pop($this->columns);
         $this->columns[] = "$lastColumn UNIQUE";
