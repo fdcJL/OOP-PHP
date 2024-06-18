@@ -96,7 +96,7 @@ class DB {
         }
         try {
             $stmt = self::$con->query($sql);
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $stmt->fetchAll();
         } catch (PDOException $e) {
             die('Query failed: ' . $e->getMessage());
         }

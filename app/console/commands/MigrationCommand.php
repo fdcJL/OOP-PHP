@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Database\Table;
 
-require_once __DIR__ . '/../../config/bootstrap.php';
+require_once __DIR__ . '/../../core/bootstrap.php';
 
 class MigrationCommand {
     private static $table;

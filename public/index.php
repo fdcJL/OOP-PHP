@@ -1,9 +1,10 @@
 <?php
+
 use App\Core\Router;
 use App\Core\Request;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/../app/config/bootstrap.php';
+require_once __DIR__ . '/../app/core/bootstrap.php';
 require_once __DIR__ . '/../app/lib/helpers.php';
 require_once __DIR__ . '/../src/routes/web.php';
 
