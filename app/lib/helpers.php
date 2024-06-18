@@ -35,3 +35,7 @@ function view($name, $data = []) {
         exit;
     }
 }
+
+function auth(){
+    print_r('Hello');
+}

@@ -7,8 +7,11 @@ use Src\Controllers\Controller;
 
 class TestController extends Controller{
     public function index(){        
-        $rs = DB::table('users')->select('fname, lname')->get();
+        $Qry = DB::table('users');
+        $Qry->select('fname, lname');
+        $Qry->where('id>0');
+        $result = $Qry->get();
         
-        return response()->json($rs);
+        return auth();
     }
 }

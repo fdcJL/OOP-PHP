@@ -5,6 +5,7 @@ namespace App\Core;
 class Router {
     private static $instance = null;
     private $routes = [];
+    private $prefix = '';
 
     private function __construct() {}
 
@@ -23,7 +24,12 @@ class Router {
         $this->addRoute('POST', $uri, $action);
     }
 
+    public function prefix($prefix) {
+        $this->prefix = trim($prefix, '/');
+    }
+
     private function addRoute($method, $uri, $action) {
+        $uri = '/' . trim($this->prefix . '/' . trim($uri, '/'), '/');
         $this->routes[] = [
             'method' => $method,
             'uri' => $uri,
@@ -33,17 +39,19 @@ class Router {
 
     public function dispatch($requestUri, $requestMethod) {
         foreach ($this->routes as $route) {
-            if ($route['method'] === $requestMethod && preg_match($this->convertToRegex($route['uri']), $requestUri, $matches)) {
+            $pattern = $this->convertToRegex($route['uri']);
+            if ($route['method'] === $requestMethod && preg_match($pattern, $requestUri, $matches)) {
                 array_shift($matches);
                 $this->callAction($route['action'], $matches);
                 return;
             }
         }
+        http_response_code(404);
         echo "404 Not Found";
     }
 
     private function convertToRegex($uri) {
-        return '/^' . str_replace(['*', '/'], ['([a-zA-Z0-9_-]+)', '\/'], $uri) . '$/';
+        return '#^' . preg_replace('#\(/\)#', '/?', preg_quote($uri, '#')) . '$#';
     }
 
     private function callAction($action, $params = []) {
