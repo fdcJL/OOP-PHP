@@ -5,7 +5,7 @@ use App\Database\DB;
 $dotenv = Dotenv::createImmutable(__DIR__ . '/../..');
 $dotenv->load();
 
-$dbconfig = include '../app/config/database.php';
+$dbconfig = include __DIR__ . '/../../app/config/database.php';
 $default = $dbconfig['default'];
 $connection = $dbconfig['connections'][$default];
 
