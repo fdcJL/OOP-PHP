@@ -11,7 +11,7 @@ class TestController extends Controller{
         $Qry->select('fname, lname');
         $Qry->where('id>0');
         $result = $Qry->get();
-        
-        return auth();
+
+        return response()->json($result);
     }
 }

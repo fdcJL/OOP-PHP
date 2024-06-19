@@ -9,3 +9,4 @@ $router->get('/', function() use ($db_status) {
 });
 
 $router->get('/store', [TestController::class, 'index']);
+$router->get('/sample', [TestController::class, 'sample']);
